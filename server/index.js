@@ -7,7 +7,13 @@ const keys = require('./config/keys');
 require('./models/user.model');
 require('./helpers/passport');
 
-mongoose.connect(keys.mongoURI);
+mongoose.connect(keys.mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true
+}).then(conn => {
+    console.log(`MongoDB Connected with host: ${conn.connection.host}`);
+});
 
 const app = express();
 
