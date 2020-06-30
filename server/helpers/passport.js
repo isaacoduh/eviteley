@@ -19,22 +19,18 @@ passport.use(new GoogleStrategy(
     {
         clientID: keys.googleClientID,
         clientSecret: keys.googleClientSecret,
-        callbackURL: 'http://localhost:5000/auth/google/callback',
+        // callbackURL: 'http://localhost:5000/auth/google/callback',
+        callbackURL: '/auth/google/callback',
         proxy: true
     },
-    (accessToken, refreshToken, profile, done) => {
-        User.findOne({googleId: profile.id}).then(existingUser => {
-            if(existingUser){
-                /**
-                 * A record is already available with a given profile ID
-                 */
-                done(null, existingUser);
-            }else{
-                /**
-                 * A user with that record is not available
-                 */
-                new User({googleId: profile.id}).save().then(user => done(null, user));
-            }
-        });
+    async (accessToken, refreshToken, profile, done) => {
+        const existingUser = await User.findOne({googleId: profile.id});
+
+        if(existingUser){
+            return done(null, existingUser);
+        }
+
+        const user = await new User({googleId: profile.id}).save();
+        done(null, user);
     }
 ));
